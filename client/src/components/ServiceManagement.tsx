@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Wrench, Plus, Edit, Search, Calendar, User, Monitor, AlertCircle, CheckCircle, Clock, Package } from 'lucide-react';
+import { Wrench, Plus, Edit, Search, Calendar, User, Monitor, AlertCircle, CheckCircle, Clock, Package, Receipt } from 'lucide-react';
 import { trpc } from '@/utils/trpc';
 import type { Service, Customer, CreateServiceInput, UpdateServiceInput, ServiceStatus } from '../../../server/src/schema';
+import { ServiceReceiptComponent } from './ServiceReceipt';
 
 export default function ServiceManagement() {
   const [services, setServices] = useState<Service[]>([]);
@@ -20,6 +21,8 @@ export default function ServiceManagement() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptServiceId, setReceiptServiceId] = useState<number | null>(null);
 
   const [createFormData, setCreateFormData] = useState<CreateServiceInput>({
     customer_id: 0,
@@ -137,6 +140,16 @@ export default function ServiceManagement() {
       completed_date: service.completed_date
     });
     setIsEditDialogOpen(true);
+  };
+
+  const openReceiptDialog = (serviceId: number) => {
+    setReceiptServiceId(serviceId);
+    setShowReceipt(true);
+  };
+
+  const closeReceiptDialog = () => {
+    setShowReceipt(false);
+    setReceiptServiceId(null);
   };
 
   const getStatusBadgeVariant = (status: ServiceStatus) => {
@@ -362,6 +375,16 @@ export default function ServiceManagement() {
                       {getStatusIcon(service.status)}
                       <span className="ml-1">{service.status.replace('_', ' ')}</span>
                     </Badge>
+                    {service.status === 'completed' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openReceiptDialog(service.id)}
+                        title="Generate Receipt"
+                      >
+                        <Receipt className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -552,6 +575,20 @@ export default function ServiceManagement() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Service Receipt Dialog/Overlay */}
+      {showReceipt && receiptServiceId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <ServiceReceiptComponent 
+                serviceId={receiptServiceId} 
+                onClose={closeReceiptDialog}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

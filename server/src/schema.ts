@@ -267,6 +267,58 @@ export const updateInvoiceInputSchema = z.object({
 
 export type UpdateInvoiceInput = z.infer<typeof updateInvoiceInputSchema>;
 
+// Service Receipt schemas
+export const serviceReceiptSchema = z.object({
+  service: serviceSchema,
+  customer: customerSchema,
+  service_items: z.array(serviceItemSchema.extend({
+    product: productSchema
+  })),
+  total_parts_cost: z.number()
+});
+
+export type ServiceReceipt = z.infer<typeof serviceReceiptSchema>;
+
+// POS/Cashier schemas
+export const posItemSchema = z.object({
+  product_id: z.number(),
+  product_name: z.string(),
+  product_sku: z.string().nullable(),
+  quantity: z.number().int().min(1),
+  unit_price: z.number().min(0),
+  total_price: z.number()
+});
+
+export type PosItem = z.infer<typeof posItemSchema>;
+
+export const createPosTransactionInputSchema = z.object({
+  customer_id: z.number(),
+  service_id: z.number().nullable().optional(),
+  items: z.array(z.object({
+    product_id: z.number(),
+    quantity: z.number().int().min(1),
+    unit_price: z.number().min(0)
+  })),
+  service_charge: z.number().min(0).optional(),
+  tax_rate: z.number().min(0).max(1).default(0), // e.g., 0.1 for 10%
+  notes: z.string().nullable().optional()
+});
+
+export type CreatePosTransactionInput = z.infer<typeof createPosTransactionInputSchema>;
+
+export const posTransactionSummarySchema = z.object({
+  transaction: transactionSchema,
+  customer: customerSchema,
+  service: serviceSchema.nullable().optional(),
+  items: z.array(posItemSchema),
+  subtotal: z.number(),
+  service_charge: z.number(),
+  tax_amount: z.number(),
+  total_amount: z.number()
+});
+
+export type PosTransactionSummary = z.infer<typeof posTransactionSummarySchema>;
+
 // Report schemas
 export const reportPeriodEnum = z.enum(['daily', 'weekly', 'monthly', 'yearly']);
 export type ReportPeriod = z.infer<typeof reportPeriodEnum>;

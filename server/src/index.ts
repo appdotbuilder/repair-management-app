@@ -20,7 +20,8 @@ import {
   createInvoiceInputSchema,
   updateInvoiceInputSchema,
   reportRequestSchema,
-  serviceStatusEnum
+  serviceStatusEnum,
+  createPosTransactionInputSchema
 } from './schema';
 
 // Import handlers
@@ -91,6 +92,15 @@ import {
   getMonthlySummary,
   getYearlySummary
 } from './handlers/reports';
+
+import {
+  generateServiceReceipt
+} from './handlers/service_receipts';
+
+import {
+  createPosTransaction,
+  getPosSummary
+} from './handlers/pos';
 
 const t = initTRPC.create({
   transformer: superjson,
@@ -279,6 +289,20 @@ const appRouter = router({
   getYearlySummary: publicProcedure
     .input(z.object({ year: z.number() }))
     .query(({ input }) => getYearlySummary(input.year)),
+
+  // Service Receipt routes
+  generateServiceReceipt: publicProcedure
+    .input(z.object({ serviceId: z.number() }))
+    .query(({ input }) => generateServiceReceipt(input.serviceId)),
+
+  // POS/Cashier routes
+  createPosTransaction: publicProcedure
+    .input(createPosTransactionInputSchema)
+    .mutation(({ input }) => createPosTransaction(input)),
+
+  getPosSummary: publicProcedure
+    .input(z.object({ transactionId: z.number() }))
+    .query(({ input }) => getPosSummary(input.transactionId)),
 });
 
 export type AppRouter = typeof appRouter;

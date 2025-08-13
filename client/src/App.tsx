@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './App.css';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,7 +14,9 @@ import {
   BarChart3,
   Truck,
   Calendar,
-  AlertTriangle 
+  AlertTriangle,
+  CreditCard,
+  Printer
 } from 'lucide-react';
 
 // Import components
@@ -25,12 +28,15 @@ import InvoiceManagement from './components/InvoiceManagement';
 import ReportDashboard from './components/ReportDashboard';
 import SupplierManagement from './components/SupplierManagement';
 import Dashboard from './components/Dashboard';
+import { PosSystem } from './components/PosSystem';
+import { ServiceReceiptComponent } from './components/ServiceReceipt';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'pos', label: 'POS/Cashier', icon: CreditCard },
     { id: 'customers', label: 'Customers', icon: Users },
     { id: 'products', label: 'Inventory', icon: Package },
     { id: 'services', label: 'Services', icon: Wrench },
@@ -62,7 +68,7 @@ function App() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Navigation */}
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-8 bg-white/50 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 mb-8 bg-white/50 backdrop-blur-sm">
             {navigationItems.map((item) => {
               const IconComponent = item.icon;
               return (
@@ -82,6 +88,10 @@ function App() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <TabsContent value="dashboard" className="p-6">
               <Dashboard />
+            </TabsContent>
+
+            <TabsContent value="pos" className="p-6">
+              <PosSystem />
             </TabsContent>
 
             <TabsContent value="customers" className="p-6">
